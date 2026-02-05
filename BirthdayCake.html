@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Cake</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a237e 0%, #4a148c 50%, #880e4f 100%);
+            color: white;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            background: linear-gradient(to right, #ffeb3b, #ff9800, #ff5722);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titleGlow 3s infinite alternate;
+        }
+
+        .subtitle {
+            font-size: 1.4rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .cake-container {
+            position: relative;
+            margin: 0 auto 40px;
+            width: 600px;
+            max-width: 100%;
+            perspective: 1000px;
+        }
+
+        .plate {
+            width: 600px;
+            height: 35px;
+            background: linear-gradient(to bottom, #e0e0e0, #f5f5f5, #e0e0e0);
+            border-radius: 50%;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        .cake {
+            width: 600px;
+            height: 180px;
+            background: linear-gradient(to bottom, #8d6e63, #6d4c41, #5d4037);
+            border-radius: 15px 15px 0 0;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            transform-style: preserve-3d;
+            transform: translateZ(0);
+        }
+
+        .cake:before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(to bottom, #ffcdd2, #f8bbd0, #e1bee7);
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .cake:after {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 10px;
+            right: 10px;
+            height: 30px;
+            background: linear-gradient(to bottom, #f48fb1, #f06292, #ec407a);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .candles-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 11px;
+            position: absolute;
+            top: -100px;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        .candle {
+            position: relative;
+            width: 7px;
+            height: 70px;
+            background: linear-gradient(to right, #ffeb3b, #ffc107, #ff9800, #ff5722);
+            border-radius: 7px 7px 0 0;
+            box-shadow: 0 0 10px rgba(255, 193, 7, 0.7);
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .candle:hover {
+            transform: translateY(-5px);
+        }
+
+        .candle:before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 2px;
+            width: 10px;
+            height: 12px;
+            background: #ff5722;
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 8px rgba(255, 87, 34, 0.8);
+        }
+
+        .flame {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px;
+            height: 35px;
+            background: linear-gradient(to top, rgba(255, 255, 255, 0.9), #ffeb3b, #ff9800, #ff5722);
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 
+                0 0 15px #ffeb3b,
+                0 0 25px #ff9800,
+                0 0 40px #ff5722;
+            animation: flicker 0.15s infinite alternate;
+            transform-origin: center bottom;
+            filter: blur(1px);
+        }
+
+        .flame.extinguished {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.1);
+            transition: all 0.5s ease-out;
+        }
+
+        .smoke {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 25px;
+            background: rgba(200, 200, 200, 0.7);
+            border-radius: 50%;
+            opacity: 0;
+            filter: blur(3px);
+        }
+
+        .smoke.active {
+            animation: smokeRise 2.5s forwards;
+        }
+
+        @keyframes flicker {
+            0%, 100% {
+                transform: translateX(-50%) scaleY(1) rotate(-2deg);
+                height: 35px;
+                width: 18px;
+            }
+            25% {
+                transform: translateX(-50%) scaleY(1.1) rotate(0deg);
+                height: 38px;
+                width: 16px;
+            }
+            50% {
+                transform: translateX(-50%) scaleY(0.9) rotate(2deg);
+                height: 32px;
+                width: 20px;
+            }
+            75% {
+                transform: translateX(-50%) scaleY(1.05) rotate(-1deg);
+                height: 36px;
+                width: 17px;
+            }
+        }
+
+        @keyframes smokeRise {
+            0% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(calc(-50% + 15px)) translateY(-120px) scale(4);
+            }
+        }
+
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            }
+            100% {
+                text-shadow: 0 0 25px rgba(255, 215, 0, 0.9), 0 0 35px rgba(255, 215, 0, 0.7);
+            }
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .controls-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .control-group input {
+            width: 80px;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.2rem;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(to bottom, #ff9800, #f57c00);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            min-width: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(to bottom, #ffa726, #f57c00);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to bottom, #9c27b0, #7b1fa2);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(to bottom, #ab47bc, #8e24aa);
+        }
+
+        .btn-success {
+            background: linear-gradient(to bottom, #4caf50, #388e3c);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(to bottom, #66bb6a, #43a047);
+        }
+
+        .instructions {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            line-height: 1.6;
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+            border-left: 4px solid #ff9800;
+        }
+
+        .message {
+            font-size: 2rem;
+            margin: 25px 0;
+            height: 50px;
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            transition: all 0.5s ease;
+        }
+
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(30px);
+                opacity: 0;
+            }
+        }
+
+        .birthday-message {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.7);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 95%;
+            }
+            
+            .title {
+                font-size: 2.8rem;
+            }
+            
+            .plate {
+                width: 350px;
+            }
+            
+            .cake {
+                width: 320px;
+                height: 150px;
+            }
+            
+            .candles-container {
+                gap: 10px;
+                padding: 0 10px;
+            }
+            
+            .candle {
+                width: 12px;
+                height: 60px;
+            }
+            
+            .controls-panel {
+                padding: 20px;
+            }
+            
+            .btn {
+                min-width: 160px;
+                padding: 12px 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2.2rem;
+            }
+            
+            .plate {
+                width: 280px;
+            }
+            
+            .cake {
+                width: 250px;
+                height: 120px;
+            }
+            
+            .candles-container {
+                gap: 8px;
+            }
+            
+            .candle {
+                width: 10px;
+                height: 50px;
+            }
+            
+            .flame {
+                width: 14px;
+                height: 28px;
+            }
+            
+            .controls-panel {
+                padding: 15px;
+            }
+            
+            .btn {
+                min-width: 140px;
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            
+            .control-group input {
+                width: 70px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Happy Birthday Bebu!</h1>
+            <p class="subtitle">Make a wish and blow out the candles!</p><br><br><br><br><br><br><br>
+        </div>
+        
+        <div class="cake-container">
+            <div class="cake"></div>
+            <div class="candles-container" id="candlesContainer">
+                <!-- Candles will be generated here -->
+            </div>
+            <div class="plate"></div>
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="controls-panel">
+            <h2 class="controls-title">Candles</h2>
+            <div class="buttons">
+                <button class="btn btn-secondary" id="resetCandles">
+                    <i class="fas fa-redo"></i> Reset All Candles
+                </button>
+                <button class="btn btn-success" id="startBlowing">
+                    <i class="fas fa-wind"></i> Start Blowing
+                </button>
+            </div>
+        </div>
+        
+        <!-- <div class="instructions">
+            <p>Click "Start Blowing" and then blow into your microphone to blow out the candles. Make sure to allow microphone access when prompted. The candles will go out one by one as you blow. When all candles are out, you'll see a special message!</p>
+        </div> -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const candlesContainer = document.getElementById('candlesContainer');
+            const candleCountInput = '24';
+            const resetCandlesBtn = document.getElementById('resetCandles');
+            const startBlowingBtn = document.getElementById('startBlowing');
+            const messageEl = document.getElementById('message');
+            const particlesContainer = document.getElementById('particles');
+            
+            let candles = [];
+            let isBlowing = false;
+            let audioContext;
+            let analyser;
+            let microphone;
+            let javascriptNode;
+            
+            // Create floating particles
+            function createParticles() {
+                for (let i = 0; i < 80; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    particle.style.left = `${Math.random() * 100}vw`;
+                    particle.style.animationDelay = `${Math.random() * 10}s`;
+                    particlesContainer.appendChild(particle);
+                }
+            }
+            
+            // Create candles based on count
+            function createCandles(count) {
+                candlesContainer.innerHTML = '';
+                candles = [];
+                
+                // Calculate the number of rows needed for the candles
+                const rows = count <= 15 ? 1 : count <= 25 ? 2 : 3;
+                const candlesPerRow = Math.ceil(count / rows);
+                
+                for (let i = 0; i < count; i++) {
+                    const candle = document.createElement('div');
+                    candle.classList.add('candle');
+                    
+                    const flame = document.createElement('div');
+                    flame.classList.add('flame');
+                    flame.dataset.lit = 'true';
+                    
+                    const smoke = document.createElement('div');
+                    smoke.classList.add('smoke');
+                    
+                    candle.appendChild(flame);
+                    candle.appendChild(smoke);
+                    candlesContainer.appendChild(candle);
+                    
+                    candles.push({
+                        element: flame,
+                        smoke: smoke,
+                        isLit: true
+                    });
+                }
+                
+                // Adjust spacing based on number of candles
+                if (count > 20) {
+                    candlesContainer.style.gap = '10px';
+                } else if (count > 10) {
+                    candlesContainer.style.gap = '12px';
+                } else {
+                    candlesContainer.style.gap = '15px';
+                }
+            }
+            
+            // Initialize with default candles
+            createCandles(32);
+            createParticles();
+            
+            
+            // Reset all candles
+            resetCandlesBtn.addEventListener('click', function() {
+                candles.forEach(candle => {
+                    if (!candle.isLit) {
+                        candle.element.classList.remove('extinguished');
+                        candle.element.dataset.lit = 'true';
+                        candle.isLit = true;
+                    }
+                });
+                messageEl.textContent = 'Candles reset! Make a wish!';
+                messageEl.style.color = 'white';
+            });
+            
+            // Start blowing detection
+            startBlowingBtn.addEventListener('click', function() {
+                if (isBlowing) {
+                    stopBlowingDetection();
+                    startBlowingBtn.innerHTML = '<i class="fas fa-wind"></i> Start Blowing';
+                    messageEl.textContent = '';
+                } else {
+                    startBlowingDetection();
+                    startBlowingBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Blowing';
+                    messageEl.textContent = 'Blow into your microphone to blow out the candles!';
+                    messageEl.style.color = 'white';
+                }
+            });
+            
+            // Start microphone detection
+            function startBlowingDetection() {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    messageEl.textContent = 'Microphone access not supported in this browser';
+                    messageEl.style.color = '#ff6b6b';
+                    return;
+                }
+                
+                navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                    .then(function(stream) {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        analyser = audioContext.createAnalyser();
+                        microphone = audioContext.createMediaStreamSource(stream);
+                        javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+                        
+                        analyser.smoothingTimeConstant = 0.8;
+                        analyser.fftSize = 1024;
+                        
+                        microphone.connect(analyser);
+                        analyser.connect(javascriptNode);
+                        javascriptNode.connect(audioContext.destination);
+                        
+                        javascriptNode.onaudioprocess = function() {
+                            const array = new Uint8Array(analyser.frequencyBinCount);
+                            analyser.getByteFrequencyData(array);
+                            
+                            let values = 0;
+                            const length = array.length;
+                            
+                            for (let i = 0; i < length; i++) {
+                                values += array[i];
+                            }
+                            
+                            const average = values / length;
+                            
+                            // If blowing is detected (average volume is high)
+                            if (average > 70) {
+                                extinguishRandomCandle();
+                            }
+                        };
+                        
+                        isBlowing = true;
+                    })
+                    .catch(function(err) {
+                        messageEl.textContent = 'Error accessing microphone: ' + err.message;
+                        messageEl.style.color = '#ff6b6b';
+                    });
+            }
+            
+            // Stop microphone detection
+            function stopBlowingDetection() {
+                if (javascriptNode) {
+                    javascriptNode.disconnect();
+                }
+                if (microphone) {
+                    microphone.disconnect();
+                }
+                if (analyser) {
+                    analyser.disconnect();
+                }
+                if (audioContext) {
+                    audioContext.close();
+                }
+                isBlowing = false;
+            }
+            
+            // Extinguish a random candle
+            function extinguishRandomCandle() {
+                const litCandles = candles.filter(candle => candle.isLit);
+                
+                if (litCandles.length === 0) {
+                    messageEl.textContent = 'Happy Birthday Naanu! 🎉';
+                    messageEl.style.color = '#ffeb3b';
+                    messageEl.style.textShadow = '0 0 15px rgba(255, 215, 0, 0.9)';
+                    stopBlowingDetection();
+                    startBlowingBtn.innerHTML = '<i class="fas fa-wind"></i> Start Blowing';
+                    return;
+                }
+                
+                const randomIndex = Math.floor(Math.random() * litCandles.length);
+                const candle = litCandles[randomIndex];
+                
+                candle.element.classList.add('extinguished');
+                candle.element.dataset.lit = 'false';
+                candle.isLit = false;
+                
+                // Show smoke animation
+                candle.smoke.classList.add('active');
+                setTimeout(() => {
+                    candle.smoke.classList.remove('active');
+                }, 2500);
+                
+                if (litCandles.length === 1) {
+                    setTimeout(() => {
+                        messageEl.textContent = 'Happy Birthday Naanu! 🎉';
+                        messageEl.style.color = '#ffeb3b';
+                        messageEl.style.textShadow = '0 0 15px rgba(255, 215, 0, 0.9)';
+                        stopBlowingDetection();
+                        startBlowingBtn.innerHTML = '<i class="fas fa-wind"></i> Start Blowing';
+                    }, 1000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
